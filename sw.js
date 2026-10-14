@@ -1,5 +1,5 @@
 // Guarda la app en el móvil para abrirla al instante y sin conexión. No guarda tus repostajes (esos están en el almacenamiento local) ni los precios (esos van aparte, con fecha).
-const C = 'cheapfuel-v4';
+const C = 'cheapfuel-v5';
 const SHELL = ['./', './index.html', './manifest.webmanifest', './icon.svg', './icon-192.png', './fonts/archivo.woff', './fonts/publicsans.woff'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(C).then(c => c.addAll(SHELL))); self.skipWaiting(); });
 self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== C).map(k => caches.delete(k))))); self.clients.claim(); });
