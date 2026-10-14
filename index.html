@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>CheapFuel — dónde repostar más barato</title>
 <meta name="description" content="Las gasolineras más baratas cerca de ti, en tu trayecto o por localidad, con los precios oficiales del Ministerio. Y cuánto ahorras cada mes. Gratis, sin anuncios y sin rastro.">
-<meta name="theme-color" content="#111111">
-<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#FFFFFF">
+<meta name="color-scheme" content="light">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -27,7 +27,7 @@
 <style>
 @font-face{font-family:'Archivo';src:url('fonts/archivo.woff') format('woff');font-weight:500 900;font-stretch:100% 125%;font-display:swap}
 @font-face{font-family:'Public Sans';src:url('fonts/publicsans.woff') format('woff');font-weight:400 800;font-display:swap}
-/* Sistema unoparatodos: neutros puros, sin tono. Claro y oscuro según el sistema. */
+/* Sistema unoparatodos: neutros puros, sin tono. Siempre negro sobre blanco. */
 :root{
   --bg:#EDEDED; --surface:#FFFFFF; --ink:#111111; --muted:#595959; --line:#D4D4D4; --tint:#E4E4E4;
   --hero:#111111; --on-hero:#FFFFFF; --on-hero-muted:#BDBDBD;
@@ -36,9 +36,6 @@
   --r:22px;
   padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
 }
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --bg:#0E0E0E; --surface:#1B1B1B; --ink:#F2F2F2; --muted:#A8A8A8; --line:#333333; --tint:#2A2A2A;
-  --hero:#F2F2F2; --on-hero:#111111; --on-hero-muted:#4A4A4A; color-scheme:dark}}
 *{box-sizing:border-box}
 html,body{height:100%}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.45;-webkit-font-smoothing:antialiased}
@@ -103,26 +100,24 @@ select:disabled{opacity:.5}
 .morebtn{align-self:center;margin-top:4px}
 
 /* Mi ahorro */
-.hero{background:var(--hero);color:var(--on-hero);border-radius:28px;padding:22px 22px 20px;display:flex;flex-direction:column;gap:12px}
-.hero .eyebrow{font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--on-hero-muted)}
+.hero{background:var(--surface);color:var(--ink);border-radius:28px;box-shadow:inset 0 0 0 3px var(--ink);padding:22px 22px 20px;display:flex;flex-direction:column;gap:12px}
+.hero .eyebrow{font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
 .hero .big{font-family:var(--display);font-weight:900;font-stretch:112%;font-size:clamp(44px,13vw,62px);line-height:.95;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
 .hero .big small{font-size:.45em;font-weight:800;letter-spacing:-.01em}
-.hero .sub{font-size:15px;line-height:1.4;color:var(--on-hero);max-width:34ch}
+.hero .sub{font-size:15px;line-height:1.4;color:var(--ink);max-width:34ch}
 .hero .sub b{font-weight:800}
 .stats{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.stats div{border:2px solid var(--on-hero-muted);border-radius:14px;padding:10px 12px;display:flex;flex-direction:column;gap:2px}
+.stats div{border:2px solid var(--line);border-radius:14px;padding:10px 12px;display:flex;flex-direction:column;gap:2px}
 .stats b{font-family:var(--display);font-weight:900;font-stretch:112%;font-size:22px;line-height:1;font-variant-numeric:tabular-nums}
-.stats span{font-size:12px;color:var(--on-hero-muted);font-weight:700}
+.stats span{font-size:12px;color:var(--muted);font-weight:700}
 .hero .actions{display:flex;gap:8px;flex-wrap:wrap;padding-top:2px}
-.hero .btn{background:var(--on-hero);color:var(--hero)}
-.hero .btn.ghost{background:transparent;color:var(--on-hero);box-shadow:inset 0 0 0 2px var(--on-hero)}
 .hero p.empty{font-size:16px;line-height:1.45}
-.reps{display:flex;flex-direction:column;border-top:2px solid var(--on-hero-muted);padding-top:6px}
-.rep{display:grid;grid-template-columns:1fr auto auto;gap:4px 10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--on-hero-muted);font-size:13px}
+.reps{display:flex;flex-direction:column;border-top:2px solid var(--ink);padding-top:6px}
+.rep{display:grid;grid-template-columns:1fr auto auto;gap:4px 10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line);font-size:13px}
 .rep .n{font-weight:800;font-size:14px}
-.rep .d{color:var(--on-hero-muted)}
+.rep .d{color:var(--muted)}
 .rep .s{font-family:var(--display);font-weight:900;font-size:18px;font-variant-numeric:tabular-nums;text-align:right}
-.rep .x{width:34px;height:34px;border-radius:10px;border:2px solid var(--on-hero-muted);background:transparent;color:var(--on-hero);cursor:pointer;display:grid;place-items:center}
+.rep .x{width:34px;height:34px;border-radius:10px;border:2px solid var(--line);background:transparent;color:var(--ink);cursor:pointer;display:grid;place-items:center}
 .rep .x svg.i{width:16px;height:16px}
 
 /* Hoja de registro */
