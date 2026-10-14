@@ -1,0 +1,570 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CheapFuel — dónde repostar más barato</title>
+<meta name="description" content="Las gasolineras más baratas cerca de ti, en tu trayecto o por localidad, con los precios oficiales del Ministerio. Y cuánto ahorras cada mes. Gratis, sin anuncios y sin rastro.">
+<meta name="theme-color" content="#111111">
+<meta name="color-scheme" content="light dark">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="CheapFuel">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="es_ES">
+<meta property="og:title" content="CheapFuel">
+<meta property="og:description" content="Dónde repostar más barato, con los precios oficiales. Y cuánto ahorras cada mes.">
+<meta property="og:url" content="https://cheapfuel.netlify.app/">
+<meta property="og:image" content="https://cheapfuel.netlify.app/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="author" content="unoparatodos">
+<style>
+@font-face{font-family:'Archivo';src:url('fonts/archivo.woff') format('woff');font-weight:500 900;font-stretch:100% 125%;font-display:swap}
+@font-face{font-family:'Public Sans';src:url('fonts/publicsans.woff') format('woff');font-weight:400 800;font-display:swap}
+/* Sistema unoparatodos: neutros puros, sin tono. Claro y oscuro según el sistema. */
+:root{
+  --bg:#EDEDED; --surface:#FFFFFF; --ink:#111111; --muted:#595959; --line:#D4D4D4; --tint:#E4E4E4;
+  --hero:#111111; --on-hero:#FFFFFF; --on-hero-muted:#BDBDBD;
+  --display:'Archivo','Arial Narrow',system-ui,sans-serif;
+  --body:'Public Sans','Segoe UI',system-ui,sans-serif;
+  --r:22px;
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0E0E0E; --surface:#1B1B1B; --ink:#F2F2F2; --muted:#A8A8A8; --line:#333333; --tint:#2A2A2A;
+  --hero:#F2F2F2; --on-hero:#111111; --on-hero-muted:#4A4A4A; color-scheme:dark}}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.45;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:var(--display);margin:0;font-weight:800;letter-spacing:-.01em;line-height:1.1;text-wrap:balance}
+p{margin:0}
+a{color:var(--ink);font-weight:700;text-underline-offset:3px;text-decoration-thickness:2px}
+button{font-family:inherit;color:inherit}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
+.muted{color:var(--muted)} .small{font-size:14px}
+svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto}
+
+.app{max-width:560px;margin:0 auto;padding:16px 16px 40px;display:flex;flex-direction:column;gap:14px}
+
+/* Cabecera */
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand{display:inline-flex;align-items:baseline;gap:.35em;font-family:var(--display);font-weight:900;font-stretch:118%;font-size:30px;letter-spacing:-.03em;line-height:1;text-decoration:none}
+.brand small{font:700 12px/1 var(--body);color:var(--muted);letter-spacing:.02em;white-space:nowrap}
+.refresh{width:44px;height:44px;border-radius:12px;border:0;background:var(--surface);cursor:pointer;display:grid;place-items:center}
+.status{font-size:13px;color:var(--muted);display:flex;flex-wrap:wrap;gap:4px 8px;align-items:center;min-height:20px}
+.status b{color:var(--ink);font-weight:700}
+
+/* Combustibles */
+.fuels{display:flex;gap:8px;overflow-x:auto;padding:2px 0 6px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.fuels::-webkit-scrollbar{display:none}
+.chipb{flex:0 0 auto;min-height:40px;padding:0 14px;border-radius:999px;border:2px solid var(--line);background:var(--surface);color:var(--ink);font:700 14px/1 var(--body);cursor:pointer;white-space:nowrap}
+.chipb[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--surface)}
+.more{display:none;gap:8px;align-items:center}
+.more.on{display:flex}
+select{min-height:44px;padding:0 12px;border:2px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink);font:600 15px var(--body);max-width:100%}
+select:disabled{opacity:.5}
+
+/* Tarjetas */
+.card{background:var(--surface);border-radius:var(--r);padding:18px 18px 16px;display:flex;flex-direction:column;gap:12px}
+.card h2{font-size:22px;display:flex;align-items:center;gap:10px}
+.card .lead{font-size:14px;color:var(--muted);line-height:1.4}
+.filters{display:flex;flex-wrap:wrap;gap:8px;align-items:end}
+.filters label{display:flex;flex-direction:column;gap:4px;font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);min-width:0;flex:1 1 140px}
+.filters label.short{flex:0 1 110px}
+.btn{min-height:46px;border:0;border-radius:14px;background:var(--ink);color:var(--surface);font:800 15px/1 var(--body);cursor:pointer;padding:0 16px;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.btn.ghost{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 2px var(--ink)}
+.btn.sm{min-height:38px;font-size:13px;padding:0 12px;border-radius:11px}
+.btn:disabled{opacity:.4;cursor:default}
+.note{font-size:14px;color:var(--muted);padding:4px 0}
+.note.warn{color:var(--ink);font-weight:600}
+
+/* Filas de gasolineras */
+.list{display:flex;flex-direction:column}
+.row{display:grid;grid-template-columns:30px 1fr;gap:4px 10px;align-items:start;padding:12px 0;border-top:1px solid var(--line)}
+.row:first-child{border-top:0;padding-top:4px}
+.rank{width:30px;height:30px;border-radius:15px;background:var(--tint);color:var(--ink);font:800 14px/30px var(--display);text-align:center;margin-top:2px}
+.row.top .rank{background:var(--ink);color:var(--surface)}
+.main{min-width:0}
+.l1{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.price{font-family:var(--display);font-weight:900;font-stretch:112%;font-size:24px;line-height:1;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.price small{font:700 13px/1 var(--body);color:var(--muted);margin-left:2px;letter-spacing:0}
+.rot{font-weight:800;font-size:15px;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dir{font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.side{grid-column:2;display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:4px}
+.chip{display:inline-flex;align-items:center;gap:5px;min-height:30px;padding:0 10px;border-radius:999px;border:2px solid var(--line);background:var(--surface);color:var(--ink);font:700 12px/1 var(--body);text-decoration:none;cursor:pointer;white-space:nowrap}
+.chip.fill{background:var(--ink);border-color:var(--ink);color:var(--surface)}
+.chip svg.i{width:14px;height:14px;stroke-width:2.6}
+.morebtn{align-self:center;margin-top:4px}
+
+/* Mi ahorro */
+.hero{background:var(--hero);color:var(--on-hero);border-radius:28px;padding:22px 22px 20px;display:flex;flex-direction:column;gap:12px}
+.hero .eyebrow{font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--on-hero-muted)}
+.hero .big{font-family:var(--display);font-weight:900;font-stretch:112%;font-size:clamp(44px,13vw,62px);line-height:.95;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.hero .big small{font-size:.45em;font-weight:800;letter-spacing:-.01em}
+.hero .sub{font-size:15px;line-height:1.4;color:var(--on-hero);max-width:34ch}
+.hero .sub b{font-weight:800}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.stats div{border:2px solid var(--on-hero-muted);border-radius:14px;padding:10px 12px;display:flex;flex-direction:column;gap:2px}
+.stats b{font-family:var(--display);font-weight:900;font-stretch:112%;font-size:22px;line-height:1;font-variant-numeric:tabular-nums}
+.stats span{font-size:12px;color:var(--on-hero-muted);font-weight:700}
+.hero .actions{display:flex;gap:8px;flex-wrap:wrap;padding-top:2px}
+.hero .btn{background:var(--on-hero);color:var(--hero)}
+.hero .btn.ghost{background:transparent;color:var(--on-hero);box-shadow:inset 0 0 0 2px var(--on-hero)}
+.hero p.empty{font-size:16px;line-height:1.45}
+.reps{display:flex;flex-direction:column;border-top:2px solid var(--on-hero-muted);padding-top:6px}
+.rep{display:grid;grid-template-columns:1fr auto auto;gap:4px 10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--on-hero-muted);font-size:13px}
+.rep .n{font-weight:800;font-size:14px}
+.rep .d{color:var(--on-hero-muted)}
+.rep .s{font-family:var(--display);font-weight:900;font-size:18px;font-variant-numeric:tabular-nums;text-align:right}
+.rep .x{width:34px;height:34px;border-radius:10px;border:2px solid var(--on-hero-muted);background:transparent;color:var(--on-hero);cursor:pointer;display:grid;place-items:center}
+.rep .x svg.i{width:16px;height:16px}
+
+/* Hoja de registro */
+.sheet{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:flex-end;justify-content:center;z-index:20;padding:0}
+.sheet.on{display:flex}
+.panel{background:var(--surface);color:var(--ink);width:100%;max-width:560px;border-radius:26px 26px 0 0;padding:20px 18px calc(20px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:12px;max-height:92vh;overflow:auto}
+.panel h3{font-size:22px}
+.panel .who{font-size:14px;color:var(--muted)}
+.fields{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.fields label{display:flex;flex-direction:column;gap:4px;font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.fields label.full{grid-column:1 / -1}
+input{min-height:46px;padding:0 12px;border:2px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink);font:700 18px var(--body);width:100%;font-variant-numeric:tabular-nums}
+.refbox{background:var(--tint);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:4px;font-size:14px}
+.refbox b{font-family:var(--display);font-size:22px;font-weight:900;font-stretch:112%;font-variant-numeric:tabular-nums}
+.refbox .pos{font-weight:800}
+.panel .actions{display:flex;gap:8px}
+.panel .actions .btn{flex:1}
+
+/* Pie */
+footer{display:flex;flex-direction:column;gap:10px;padding-top:14px;border-top:2px solid var(--ink);font-size:13px;color:var(--muted)}
+footer .wm{display:inline-flex;align-items:center;gap:.42em;font-family:var(--display);font-weight:900;font-stretch:118%;font-size:20px;letter-spacing:-.03em;line-height:1;text-decoration:none;color:var(--ink)}
+footer .wm svg{width:1.05em;height:1.05em}
+footer .wm .pt{color:var(--muted)}
+.hole{fill:var(--bg)}
+
+.toast{visibility:hidden;position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(100px);background:var(--ink);color:var(--surface);border-radius:12px;padding:10px 16px;font-size:14px;font-weight:700;transition:transform .25s;z-index:30;max-width:90vw;text-align:center}
+.toast.on{visibility:visible;transform:translateX(-50%) translateY(0)}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="ut-mark" viewBox="0 0 64 64"><rect width="64" height="64" rx="12" fill="currentColor"/><path class="hole" transform="matrix(0.03213 0 0 -0.03213 7.408 51.468)" d="M130 292Q130 150 212.5 61Q295 -28 428 -28Q515 -28 619 25.5Q697.4 65.9 796.9 152.6Q809 101.9 845.5 61Q888.7 12.7 942.2 2.6Q1015.2 -28 1117 -28Q1227 -28 1313 13Q1399 54 1448 123.5Q1497 193 1497 278Q1497 312 1485 326Q1473 340 1453 340Q1429 340 1415 321Q1401 302 1388.5 277.5Q1376 253 1355.5 234Q1335 215 1297 215Q1250 215 1225 253Q1200 291 1200 364V822H1328Q1413 822 1450 848Q1487 874 1487 912Q1487 937 1468.5 950.5Q1450 964 1419 964H1200V1166Q1200 1202 1183.5 1221Q1167 1240 1138 1240Q1112 1240 1083.5 1224Q1055 1208 1022 1175L859 1010Q833 984 816.5 974Q800 964 781 964H776V970H774.8V964H639Q619.8 964 608.3 950.5Q596.8 937 596.8 912Q596.8 874 619.8 848Q642.7 822 695.4 822H774.8V700H775Q776 691.1 776 680V257.4Q757 244.9 735 237Q699 224 666 224Q613 224 583.5 256Q554 288 554 352V904Q554 943 530 968.5Q506 994 458 994Q434 994 403 985.5Q372 977 318 956L96 870Q60 856 47 842Q34 828 34 804Q34 784 43.5 771Q53 758 74 751L96 744Q113 739 121.5 725.5Q127 716.7 129 700Q130 691.1 130 680Z"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 22s7-7.3 7-12a7 7 0 0 0-14 0c0 4.7 7 12 7 12z"/><circle cx="12" cy="10" r="2.6"/></symbol>
+  <symbol id="i-route" viewBox="0 0 24 24"><circle cx="6" cy="19" r="3"/><circle cx="18" cy="5" r="3"/><path d="M9 19h5a3.5 3.5 0 0 0 0-7h-4a3.5 3.5 0 0 1 0-7h5"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></symbol>
+  <symbol id="i-pump" viewBox="0 0 24 24"><path d="M4 21V5a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v16M3 21h12M6 7h7v5H6zM15 10h2a2 2 0 0 1 2 2v5a1.5 1.5 0 0 0 3 0V9l-3-3"/></symbol>
+  <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.7M20 4v5h-5"/></symbol>
+  <symbol id="i-share" viewBox="0 0 24 24"><path d="M12 3v13M7 8l5-5 5 5M5 14v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5"/></symbol>
+  <symbol id="i-down" viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></symbol>
+  <symbol id="i-up" viewBox="0 0 24 24"><path d="M12 15V3M7 8l5-5 5 5M5 21h14"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></symbol>
+  <symbol id="i-map" viewBox="0 0 24 24"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2zM9 4v14M15 6v14"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+  <symbol id="i-edit" viewBox="0 0 24 24"><path d="M4 20h4l10.5-10.5a2.1 2.1 0 0 0-3-3L5 17z"/></symbol>
+</svg>
+
+<div class="app">
+  <header class="top">
+    <a class="brand" href="./" aria-label="CheapFuel, inicio">CheapFuel<small>por unoparatodos</small></a>
+    <button class="refresh" id="btnRefresh" aria-label="Actualizar precios" title="Actualizar"><svg class="i"><use href="#i-refresh"/></svg></button>
+  </header>
+
+  <div class="fuels" id="fuels" role="group" aria-label="Combustible"></div>
+  <div class="more" id="more"><label class="small muted" for="selProd">Otro combustible</label><select id="selProd"></select></div>
+  <p class="status" id="status">Precios oficiales del Ministerio.</p>
+
+  <section class="hero" id="ahorro" aria-labelledby="h-ahorro">
+    <p class="eyebrow" id="ahorroEyebrow">Mi ahorro</p>
+    <div id="ahorroBody"></div>
+  </section>
+
+  <section class="card" id="zR" aria-labelledby="h-ruta">
+    <h2 id="h-ruta"><svg class="i"><use href="#i-route"/></svg>Mi trayecto</h2>
+    <p class="lead">Las más baratas en el corredor de tu ruta habitual. El desvío se mide desde la línea recta entre origen y destino, no por carretera. Se guarda en tu móvil.</p>
+    <div id="rutaCfg">
+      <div class="filters">
+        <label>Origen · provincia<select id="provO"><option value="">Elegir</option></select></label>
+        <label>Origen · localidad<select id="muniO" disabled><option value="">—</option></select></label>
+      </div>
+      <div class="filters" style="margin-top:8px">
+        <label>Destino · provincia<select id="provD"><option value="">Elegir</option></select></label>
+        <label>Destino · localidad<select id="muniD" disabled><option value="">—</option></select></label>
+      </div>
+      <div class="filters" style="margin-top:8px">
+        <label class="short">Desvío máximo<select id="selCorr"><option value="2">2 km</option><option value="4" selected>4 km</option><option value="8">8 km</option></select></label>
+        <button class="btn" id="btnRuta"><svg class="i"><use href="#i-check"/></svg>Guardar trayecto</button>
+      </div>
+    </div>
+    <p class="note" id="rutaTit" hidden></p>
+    <div class="list" id="lR"><p class="note">Elige origen y destino para ver tu trayecto.</p></div>
+  </section>
+
+  <section class="card" id="zG" aria-labelledby="h-cerca">
+    <h2 id="h-cerca"><svg class="i"><use href="#i-pin"/></svg>Cerca de mí</h2>
+    <p class="lead">Usa la ubicación del móvil. La distancia es en línea recta desde donde estás.</p>
+    <div class="filters">
+      <button class="btn" id="btnGPS"><svg class="i"><use href="#i-pin"/></svg>Usar mi ubicación</button>
+      <label class="short">Radio<select id="selRad"><option value="5">5 km</option><option value="10" selected>10 km</option><option value="25">25 km</option></select></label>
+    </div>
+    <div class="list" id="lG"><p class="note">Pulsa el botón y acepta el permiso de ubicación.</p></div>
+  </section>
+
+  <section class="card" id="zB" aria-labelledby="h-busca">
+    <h2 id="h-busca"><svg class="i"><use href="#i-search"/></svg>Por provincia y localidad</h2>
+    <div class="filters">
+      <label>Provincia<select id="selProv"><option value="">Elegir</option></select></label>
+      <label>Localidad<select id="selMuni" disabled><option value="">Toda la provincia</option></select></label>
+    </div>
+    <div class="list" id="lB"><p class="note">Elige una provincia para buscar.</p></div>
+  </section>
+
+  <footer>
+    <p>Datos: <a href="https://geoportalgasolineras.es/" rel="noopener">Geoportal de Gasolineras</a>, Ministerio para la Transición Ecológica y el Reto Demográfico. Cada gasolinera comunica sus precios cuando cambian; el servicio se refresca cada 30 minutos.</p>
+    <p>Todo lo que registras se guarda en tu móvil. Sin cuentas, sin anuncios, sin rastro.</p>
+    <a class="wm" href="https://unoparatodos.netlify.app/" rel="noopener"><svg viewBox="0 0 64 64" aria-hidden="true"><use href="#ut-mark"/></svg><span>uno<span class="pt">paratodos</span></span></a>
+    <p>© 2026 unoparatodos · <a href="https://github.com/unoparatodos/cheapfuel" rel="noopener">código abierto</a></p>
+  </footer>
+</div>
+
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sh-h">
+  <div class="panel">
+    <h3 id="sh-h">He repostado aquí</h3>
+    <p class="who" id="shWho"></p>
+    <div class="fields">
+      <label>Precio €/litro<input id="fPrice" type="number" inputmode="decimal" step="0.001" min="0"></label>
+      <label>Fecha<input id="fDate" type="date"></label>
+      <label>Litros<input id="fLit" type="number" inputmode="decimal" step="0.01" min="0" placeholder="0,00"></label>
+      <label>Euros<input id="fEur" type="number" inputmode="decimal" step="0.01" min="0" placeholder="0,00"></label>
+    </div>
+    <div class="refbox" id="refbox"></div>
+    <div class="actions">
+      <button class="btn ghost" id="shCancel">Cancelar</button>
+      <button class="btn" id="shSave"><svg class="i"><use href="#i-check"/></svg>Guardar</button>
+    </div>
+  </div>
+</div>
+<input type="file" id="fileImport" accept="application/json" hidden>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+/* ===== Utilidades ===== */
+const $=id=>document.getElementById(id);
+const BASE='https://sedeaplicaciones.minetur.gob.es/ServiciosRESTCarburantes/PreciosCarburantes/';
+const SITE='cheapfuel.netlify.app';
+const num=x=>{const v=parseFloat(String(x||'').replace(',','.'));return isFinite(v)?v:null;};
+const precio=x=>{const v=num(x);return v!==null&&v>0?v:null;};
+const fx=v=>v.toFixed(3).replace('.',',');
+const eur=v=>(v<0?'−':'')+Math.abs(v).toFixed(2).replace('.',',')+' €';
+const eurS=v=>(v<0?'−':'+')+Math.abs(v).toFixed(2).replace('.',',')+' €';
+const lit=v=>Math.round(v).toLocaleString('es-ES')+' l';
+const tit=s=>String(s||'').toLowerCase().replace(/(^|[\s\/\.\-\(])([a-záéíóúñ])/g,(m,a,b)=>a+b.toUpperCase());
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const MESES=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+const MES3=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+function distKm(a,b,c,d){const R=6371,r=Math.PI/180,x=(c-a)*r,y=(d-b)*r;const s=Math.sin(x/2)**2+Math.cos(a*r)*Math.cos(c*r)*Math.sin(y/2)**2;return 2*R*Math.asin(Math.sqrt(s));}
+function distSeg(plat,plon,alat,alon,blat,blon){const k=Math.cos(((alat+blat)/2)*Math.PI/180)*111.32;const px=plon*k,py=plat*110.57,ax=alon*k,ay=alat*110.57,bx=blon*k,by=blat*110.57;const dx=bx-ax,dy=by-ay,L2=dx*dx+dy*dy;let t=L2?((px-ax)*dx+(py-ay)*dy)/L2:0;t=Math.max(0,Math.min(1,t));const qx=ax+t*dx,qy=ay+t*dy;return Math.hypot(px-qx,py-qy);}
+const maps=e=>'https://www.google.com/maps/search/?api=1&query='+e.lat+','+e.lon;
+function fechaMin(f){const m=/^(\d{2})\/(\d{2})\/(\d{4})\s+(\d{2}):(\d{2})/.exec(f||'');return m?`${parseInt(m[1])} ${MES3[parseInt(m[2])-1]}, ${m[4]}:${m[5]}`:'';}
+let toastT=null;function toast(m){const t=$('toast');t.textContent=m;t.classList.add('on');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('on'),2600);}
+const DB={open(){return new Promise((res,rej)=>{const r=indexedDB.open('cheapfuel',1);r.onupgradeneeded=()=>r.result.createObjectStore('kv');r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error);});},
+  async get(k){try{const db=await this.open();return await new Promise(res=>{const q=db.transaction('kv').objectStore('kv').get(k);q.onsuccess=()=>res(q.result);q.onerror=()=>res(undefined);});}catch(e){return undefined;}},
+  async set(k,v){try{const db=await this.open();return await new Promise(res=>{const t=db.transaction('kv','readwrite');t.objectStore('kv').put(v,k);t.oncomplete=()=>res(true);t.onerror=()=>res(false);});}catch(e){return false;}}};
+const LS={get(k,d){try{const v=localStorage.getItem(k);return v===null?d:JSON.parse(v);}catch(e){return d;}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}},del(k){try{localStorage.removeItem(k);}catch(e){}}};
+
+/* ===== Combustibles ===== */
+const COMUNES=[['4','Gasóleo A','gasóleo a habitual'],['5','Gasóleo Premium','gasóleo premium'],['1','Gasolina 95','gasolina 95 e5'],['20','95 E10','gasolina 95 e10'],['3','Gasolina 98','gasolina 98 e5'],['17','GLP','gases licuados del petróleo'],['18','GNC','gas natural comprimido'],['25','AdBlue','adblue']];
+let PRODS=[];  // [{id,n}] desde el Ministerio
+let PROD=String(LS.get('cf_prod','4')); let PRODNOM='Gasóleo A';
+let CORTOS={};
+function nombreProd(id){if(CORTOS[id])return CORTOS[id];const p=PRODS.find(p=>p.id===id);if(p)return p.n;const c=COMUNES.find(c=>c[0]===id);return c?c[1]:'Combustible';}
+async function cargaProductos(){
+  let lista=LS.get('cf_prods',null);
+  if(!lista||Date.now()-(lista.ts||0)>30*864e5){
+    try{const j=await (await fetch(BASE+'Listados/ProductosPetroliferos/')).json();lista={ts:Date.now(),l:j.map(p=>({id:String(p.IDProducto),n:String(p.NombreProducto).trim()}))};LS.set('cf_prods',lista);}catch(e){}
+  }
+  PRODS=(lista&&lista.l)||COMUNES.map(c=>({id:c[0],n:c[1]}));
+  // resolver ids de los comunes por nombre (por si cambian)
+  const comunes=COMUNES.map(c=>{const hit=PRODS.find(p=>p.n.toLowerCase()===c[2]);return {id:hit?hit.id:c[0],n:c[1]};});
+  CORTOS={};comunes.forEach(c=>CORTOS[c.id]=c.n);
+  const f=$('fuels');f.innerHTML='';
+  comunes.forEach(c=>{const b=document.createElement('button');b.className='chipb';b.type='button';b.textContent=c.n;b.dataset.id=c.id;b.setAttribute('aria-pressed',String(c.id===PROD));b.onclick=()=>{setProd(c.id);};f.appendChild(b);});
+  const mas=document.createElement('button');mas.className='chipb';mas.type='button';mas.textContent='Más…';mas.onclick=()=>{$('more').classList.toggle('on');};f.appendChild(mas);
+  const s=$('selProd');s.innerHTML='';PRODS.forEach(p=>{const o=document.createElement('option');o.value=p.id;o.textContent=p.n;s.appendChild(o);});
+  s.value=PROD;s.onchange=()=>setProd(s.value);
+  if(!comunes.some(c=>c.id===PROD))$('more').classList.add('on');
+  PRODNOM=nombreProd(PROD);pintaProd();
+}
+function pintaProd(){document.querySelectorAll('.chipb[data-id]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.id===PROD)));$('selProd').value=PROD;}
+function setProd(id){if(id===PROD)return;PROD=String(id);PRODNOM=nombreProd(PROD);LS.set('cf_prod',PROD);pintaProd();pintaStatus();refresca(true);}
+
+/* ===== Datos: toda España por combustible, con caché de 30 min ===== */
+let SPAIN={prod:null,ts:0,fecha:'',data:null};
+let FECHA='';
+async function getSpain(force){
+  const TTL=30*60*1000;
+  if(!force&&SPAIN.data&&SPAIN.prod===PROD&&Date.now()-SPAIN.ts<TTL)return SPAIN.data;
+  if(!force){const c=await DB.get('spain:'+PROD);if(c&&Date.now()-c.ts<TTL){SPAIN={prod:PROD,ts:c.ts,fecha:c.fecha,data:c.data};FECHA=c.fecha;pintaStatus();return c.data;}}
+  pintaStatus('Descargando precios oficiales…');
+  try{
+    const j=await (await fetch(BASE+'EstacionesTerrestres/FiltroProducto/'+PROD)).json();
+    const data=((j&&j.ListaEESSPrecio)||[]).map(e=>({id:String(e.IDEESS||''),p:precio(e.PrecioProducto),rot:tit(e['Rótulo']||'?'),dir:tit(e['Dirección']||''),hor:e.Horario||'',muni:tit(e.Localidad||e.Municipio||''),lat:num(e.Latitud),lon:num(e['Longitud (WGS84)'])})).filter(e=>e.p!==null&&e.lat!==null&&e.lon!==null);
+    SPAIN={prod:PROD,ts:Date.now(),fecha:j.Fecha||'',data};FECHA=SPAIN.fecha;DB.set('spain:'+PROD,{ts:SPAIN.ts,fecha:SPAIN.fecha,data});
+    pintaStatus();return data;
+  }catch(e){
+    const c=await DB.get('spain:'+PROD);
+    if(c){SPAIN={prod:PROD,ts:c.ts,fecha:c.fecha,data:c.data};FECHA=c.fecha;pintaStatus('Sin conexión: mostrando los últimos precios guardados');return c.data;}
+    pintaStatus('No se han podido descargar los precios');throw e;
+  }
+}
+function pintaStatus(msg){const s=$('status');if(msg){s.innerHTML=esc(msg);return;}s.innerHTML='Precios oficiales'+(FECHA?' · <b>'+esc(fechaMin(FECHA))+'</b>':'')+' · <b>'+esc(PRODNOM)+'</b>';}
+
+/* ===== Listas ===== */
+let LISTAS={G:[],R:[],B:[]};
+function fila(e,i,k){
+  return `<div class="row${i===0?' top':''}" data-k="${k}" data-i="${i}">
+    <div class="rank">${i+1}</div>
+    <div class="main"><div class="l1"><div class="price">${fx(e.p)} €<small>/l</small></div>${e.d!==undefined?`<span class="chip">${e.dTxt} ${e.d.toFixed(1).replace('.',',')} km</span>`:''}</div><div class="rot">${esc(e.rot)}${e.muni?' · '+esc(e.muni):''}</div><div class="dir">${esc(e.dir)}${e.hor?' · '+esc(e.hor):''}</div></div>
+    <div class="side"><a class="chip" target="_blank" rel="noopener" href="${maps(e)}"><svg class="i"><use href="#i-map"/></svg>Mapa</a><button class="chip fill" type="button" data-rep><svg class="i"><use href="#i-pump"/></svg>Repostado aquí</button></div>
+  </div>`;
+}
+function pinta(k,ls){
+  const cont=$('l'+k);LISTAS[k]=ls;
+  if(!ls.length){cont.innerHTML='<p class="note">Sin gasolineras con '+esc(PRODNOM)+' aquí.</p>';return;}
+  let h='';ls.slice(0,3).forEach((e,i)=>h+=fila(e,i,k));
+  const resto=ls.slice(3,12);
+  if(resto.length){h+='<div id="mas'+k+'" hidden>';resto.forEach((e,i)=>h+=fila(e,i+3,k));h+='</div><button class="btn ghost sm morebtn" type="button" id="btnMas'+k+'">Ver '+resto.length+' más</button>';}
+  cont.innerHTML=h;
+  const b=$('btnMas'+k);if(b)b.onclick=()=>{const d=$('mas'+k);d.hidden=!d.hidden;b.textContent=d.hidden?('Ver '+resto.length+' más'):'Ver menos';};
+  cont.querySelectorAll('[data-rep]').forEach(btn=>btn.onclick=()=>{const r=btn.closest('.row');abreRegistro(LISTAS[r.dataset.k][+r.dataset.i]);});
+}
+function error(k,msg){$('l'+k).innerHTML='<p class="note warn">'+esc(msg)+'</p>';}
+
+/* ===== Cerca de mí ===== */
+let POSU=null;
+function cercaDeMi(silencio){
+  const cont=$('lG');
+  if(!navigator.geolocation){error('G','Este navegador no permite usar la ubicación.');return;}
+  if(!silencio)cont.innerHTML='<p class="note">Obteniendo tu ubicación…</p>';
+  navigator.geolocation.getCurrentPosition(async pos=>{
+    POSU={lat:pos.coords.latitude,lon:pos.coords.longitude};
+    cont.innerHTML='<p class="note">Buscando gasolineras a tu alrededor…</p>';
+    try{
+      const data=await getSpain();const rad=parseFloat($('selRad').value)||10;
+      const ls=data.map(e=>Object.assign({},e,{d:distKm(POSU.lat,POSU.lon,e.lat,e.lon),dTxt:'a'})).filter(e=>e.d<=rad).sort((a,b)=>a.p-b.p);
+      if(!ls.length){error('G','Nada a menos de '+rad+' km. Prueba con más radio.');return;}
+      pinta('G',ls);
+    }catch(e){error('G','No se han podido descargar los precios. Reintenta.');}
+  },err=>{error('G','Sin permiso de ubicación. Actívalo en el navegador y reintenta.');},{enableHighAccuracy:false,timeout:12000,maximumAge:120000});
+}
+
+/* ===== Mi trayecto ===== */
+let RUTA=LS.get('cf_ruta',null);
+async function coordsDeMunicipio(idMuni){
+  const j=await (await fetch(BASE+'EstacionesTerrestres/FiltroMunicipio/'+idMuni)).json();
+  const ls=((j&&j.ListaEESSPrecio)||[]).map(e=>[num(e.Latitud),num(e['Longitud (WGS84)'])]).filter(c=>c[0]!==null&&c[1]!==null);
+  if(!ls.length)return null;let la=0,lo=0;ls.forEach(c=>{la+=c[0];lo+=c[1];});return {lat:la/ls.length,lon:lo/ls.length};
+}
+async function guardaRuta(){
+  const mo=$('muniO'),md=$('muniD');
+  if(!mo.value||!md.value){toast('Elige localidad de origen y de destino');return;}
+  $('lR').innerHTML='<p class="note">Calculando el trayecto…</p>';
+  try{
+    const co=await coordsDeMunicipio(mo.value),cd=await coordsDeMunicipio(md.value);
+    if(!co||!cd){error('R','No se ha podido situar alguna de las localidades (sin gasolineras registradas). Prueba una cercana.');return;}
+    RUTA={o:{id:mo.value,n:mo.options[mo.selectedIndex].textContent,lat:co.lat,lon:co.lon},d:{id:md.value,n:md.options[md.selectedIndex].textContent,lat:cd.lat,lon:cd.lon},corr:parseFloat($('selCorr').value)||4};
+    LS.set('cf_ruta',RUTA);pintaRuta();
+  }catch(e){error('R','No se ha podido calcular el trayecto. Reintenta.');}
+}
+async function pintaRuta(){
+  if(!RUTA)return;
+  const t=$('rutaTit');t.hidden=false;
+  t.innerHTML='<b>'+esc(RUTA.o.n)+' → '+esc(RUTA.d.n)+'</b> · '+distKm(RUTA.o.lat,RUTA.o.lon,RUTA.d.lat,RUTA.d.lon).toFixed(0)+' km · desvío máx. '+RUTA.corr+' km · <a href="#" id="btnCambia">cambiar</a>';
+  $('btnCambia').onclick=ev=>{ev.preventDefault();borraRuta();};
+  $('rutaCfg').hidden=true;
+  $('lR').innerHTML='<p class="note">Buscando en el corredor del trayecto…</p>';
+  try{
+    const data=await getSpain();
+    const ls=data.map(e=>Object.assign({},e,{d:distSeg(e.lat,e.lon,RUTA.o.lat,RUTA.o.lon,RUTA.d.lat,RUTA.d.lon),dTxt:'desvío'})).filter(e=>e.d<=RUTA.corr).sort((a,b)=>a.p-b.p);
+    if(!ls.length){error('R','Sin gasolineras con '+PRODNOM+' en el corredor. Amplía el desvío.');return;}
+    pinta('R',ls);
+  }catch(e){error('R','No se han podido descargar los precios. Reintenta.');}
+}
+function borraRuta(){RUTA=null;LS.del('cf_ruta');$('rutaCfg').hidden=false;$('rutaTit').hidden=true;$('lR').innerHTML='<p class="note">Elige origen y destino para ver tu trayecto.</p>';}
+
+/* ===== Provincias y localidades (con caché) ===== */
+async function getProvincias(){
+  let c=LS.get('cf_provs',null);
+  if(c&&Date.now()-c.ts<30*864e5)return c.l;
+  const j=await (await fetch(BASE+'Listados/Provincias/')).json();
+  j.sort((a,b)=>String(a.Provincia).localeCompare(String(b.Provincia),'es'));
+  const l=j.map(p=>({id:String(p.IDPovincia||p.IDProvincia),n:tit(String(p.Provincia).split('/')[0].trim())}));
+  LS.set('cf_provs',{ts:Date.now(),l});return l;
+}
+async function llenaProv(sel){try{(await getProvincias()).forEach(p=>{const o=document.createElement('option');o.value=p.id;o.textContent=p.n;sel.appendChild(o);});}catch(e){}}
+async function llenaMunis(prov,sel,todaProv){
+  sel.innerHTML=todaProv?'<option value="">Toda la provincia</option>':'<option value="">Elegir</option>';sel.disabled=!prov;if(!prov)return;
+  let c=LS.get('cf_munis:'+prov,null);
+  if(!c||Date.now()-c.ts>30*864e5){try{const j=await (await fetch(BASE+'Listados/MunicipiosPorProvincia/'+prov)).json();c={ts:Date.now(),l:j.map(m=>({id:String(m.IDMunicipio),n:m.Municipio}))};LS.set('cf_munis:'+prov,c);}catch(e){return;}}
+  c.l.forEach(m=>{const o=document.createElement('option');o.value=m.id;o.textContent=m.n;sel.appendChild(o);});
+}
+
+/* ===== Buscador ===== */
+async function busca(){
+  const prov=$('selProv').value,muni=$('selMuni').value,cont=$('lB');
+  if(!prov){cont.innerHTML='<p class="note">Elige una provincia para buscar.</p>';LISTAS.B=[];return;}
+  cont.innerHTML='<p class="note">Buscando…</p>';
+  try{
+    const url=muni?(BASE+'EstacionesTerrestres/FiltroMunicipioProducto/'+muni+'/'+PROD):(BASE+'EstacionesTerrestres/FiltroProvinciaProducto/'+prov+'/'+PROD);
+    const j=await (await fetch(url)).json();
+    if(j.Fecha){FECHA=j.Fecha;pintaStatus();}
+    const ls=((j&&j.ListaEESSPrecio)||[]).map(e=>{const o={id:String(e.IDEESS||''),p:precio(e.PrecioProducto),rot:tit(e['Rótulo']||'?'),dir:tit(e['Dirección']||''),hor:e.Horario||'',muni:tit(e.Localidad||e.Municipio||''),lat:num(e.Latitud),lon:num(e['Longitud (WGS84)'])};if(POSU&&o.lat!==null){o.d=distKm(POSU.lat,POSU.lon,o.lat,o.lon);o.dTxt='a';}return o;}).filter(e=>e.p!==null).sort((a,b)=>a.p-b.p);
+    if(!ls.length){error('B','Sin resultados con '+PRODNOM+' ahí.');return;}
+    pinta('B',ls);
+  }catch(e){error('B','No se ha podido buscar. Reintenta.');}
+}
+
+/* ===== Mi ahorro ===== */
+let REPS=LS.get('cf_rep',[]);
+let PEND=null;
+function mediana(a){if(!a.length)return null;const s=a.slice().sort((x,y)=>x-y);const m=s.length>>1;return s.length%2?s[m]:(s[m-1]+s[m])/2;}
+function referencia(est){
+  // mediana de las gasolineras con este combustible alrededor de la gasolinera: 5 km, y si hay pocas, 10 y 25
+  const base=(SPAIN.data&&SPAIN.prod===PROD)?SPAIN.data:[].concat(LISTAS.G,LISTAS.R,LISTAS.B);
+  const vistos=new Set();const pool=base.filter(e=>{const k=e.id||(e.lat+','+e.lon);if(vistos.has(k))return false;vistos.add(k);return e.lat!==null&&e.lon!==null;});
+  for(const rad of [5,10,25]){
+    const ps=pool.filter(e=>distKm(est.lat,est.lon,e.lat,e.lon)<=rad).map(e=>e.p);
+    if(ps.length>=3)return {ref:+mediana(ps).toFixed(3),n:ps.length,rad};
+  }
+  return {ref:est.p,n:1,rad:0};
+}
+function abreRegistro(est){
+  PEND={est,r:referencia(est)};
+  $('shWho').textContent=est.rot+(est.muni?' · '+est.muni:'')+' · '+PRODNOM;
+  $('fPrice').value=est.p.toFixed(3);$('fLit').value='';$('fEur').value='';
+  const d=new Date();$('fDate').value=d.toISOString().slice(0,10);
+  pintaRef();$('sheet').classList.add('on');setTimeout(()=>$('fLit').focus(),50);
+}
+function pintaRef(){
+  const p=num($('fPrice').value),l=num($('fLit').value)||0,r=PEND.r;
+  const dif=(r.ref-(p||0));const ah=dif*l;
+  $('refbox').innerHTML=r.rad?`<span>Referencia de tu zona: <b>${fx(r.ref)} €/l</b> <span class="muted small">mediana de ${r.n} gasolineras a ${r.rad} km</span></span><span class="${ah>=0?'pos':''}">${l?('Este repostaje: '+eurS(ah)+' frente a la mediana'):(p?('Pagas '+(dif>=0?fx(dif)+' €/l menos':fx(-dif)+' €/l más')+' que la mediana'):'')}</span>`:`<span>No hay otras gasolineras cerca para comparar: la referencia será el propio precio.</span>`;
+}
+$('fLit').oninput=()=>{const p=num($('fPrice').value),l=num($('fLit').value);if(p&&l)$('fEur').value=(p*l).toFixed(2);pintaRef();};
+$('fEur').oninput=()=>{const p=num($('fPrice').value),e=num($('fEur').value);if(p&&e)$('fLit').value=(e/p).toFixed(2);pintaRef();};
+$('fPrice').oninput=()=>{const p=num($('fPrice').value),l=num($('fLit').value);if(p&&l)$('fEur').value=(p*l).toFixed(2);pintaRef();};
+$('shCancel').onclick=()=>$('sheet').classList.remove('on');
+$('sheet').onclick=ev=>{if(ev.target===$('sheet'))$('sheet').classList.remove('on');};
+$('shSave').onclick=()=>{
+  const p=num($('fPrice').value),l=num($('fLit').value),e=num($('fEur').value);
+  if(!p||!l||l<=0){toast('Pon los litros o los euros');return;}
+  const d=$('fDate').value?new Date($('fDate').value+'T12:00:00'):new Date();
+  const est=PEND.est,r=PEND.r;
+  REPS.push({id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),ts:d.getTime(),est:est.id,rot:est.rot,muni:est.muni,lat:est.lat,lon:est.lon,prod:PROD,prodn:PRODNOM,p,l:+l.toFixed(2),e:+(e||p*l).toFixed(2),ref:+r.ref.toFixed(3),refn:r.n,rad:r.rad});
+  LS.set('cf_rep',REPS);$('sheet').classList.remove('on');pintaAhorro();toast('Repostaje guardado');
+  window.scrollTo({top:0,behavior:'smooth'});
+};
+function periodos(){const n=new Date(),y=n.getFullYear(),m=n.getMonth();const wd=(n.getDay()+6)%7;return {sem:new Date(y,m,n.getDate()-wd).getTime(),mes:new Date(y,m,1).getTime(),anio:new Date(y,0,1).getTime()};}
+function resumen(){
+  const P=periodos();const acc={sem:0,mes:0,anio:0,nMes:0,lMes:0,eMes:0};
+  REPS.forEach(r=>{const s=(r.ref-r.p)*r.l;if(r.ts>=P.anio)acc.anio+=s;if(r.ts>=P.mes){acc.mes+=s;acc.nMes++;acc.lMes+=r.l;acc.eMes+=r.e;}if(r.ts>=P.sem)acc.sem+=s;});
+  return acc;
+}
+function pintaAhorro(){
+  const b=$('ahorroBody');const n=new Date();
+  $('ahorroEyebrow').textContent='Mi ahorro · '+MESES[n.getMonth()];
+  if(!REPS.length){
+    b.innerHTML=`<p class="empty">Cuando repostes, pulsa <b>«Repostado aquí»</b> en la gasolinera y verás cuánto ahorras cada mes frente a la mediana de precios de tu zona. Se queda en tu móvil.</p><div class="actions"><button class="btn ghost sm" type="button" id="btnImp"><svg class="i"><use href="#i-up"/></svg>Importar</button></div>`;
+    $('btnImp').onclick=()=>$('fileImport').click();return;
+  }
+  const a=resumen();const pos=a.mes>=0;
+  b.innerHTML=`<div class="big">${eurS(a.mes)}</div>
+    <p class="sub">${pos?'ahorrados este mes en combustible':'pagados de más este mes'}, <b>frente a la mediana de tu zona</b> · ${a.nMes} ${a.nMes===1?'repostaje':'repostajes'} · ${lit(a.lMes)} · ${eur(a.eMes)}</p>
+    <div class="stats"><div><b>${eurS(a.sem)}</b><span>esta semana</span></div><div><b>${eurS(a.anio)}</b><span>este año</span></div></div>
+    <div class="actions"><button class="btn sm" type="button" id="btnShare"><svg class="i"><use href="#i-share"/></svg>Compartir</button><button class="btn ghost sm" type="button" id="btnList">Ver repostajes</button><button class="btn ghost sm" type="button" id="btnExp"><svg class="i"><use href="#i-down"/></svg>Exportar</button><button class="btn ghost sm" type="button" id="btnImp"><svg class="i"><use href="#i-up"/></svg>Importar</button></div>
+    <div class="reps" id="reps" hidden></div>`;
+  $('btnShare').onclick=compartir;$('btnExp').onclick=exportar;$('btnImp').onclick=()=>$('fileImport').click();
+  $('btnList').onclick=()=>{const r=$('reps');r.hidden=!r.hidden;$('btnList').textContent=r.hidden?'Ver repostajes':'Ocultar';if(!r.hidden)pintaReps();};
+}
+function pintaReps(){
+  const r=$('reps');const ls=REPS.slice().sort((a,b)=>b.ts-a.ts).slice(0,40);
+  r.innerHTML=ls.map(x=>{const d=new Date(x.ts);const s=(x.ref-x.p)*x.l;return `<div class="rep" data-id="${x.id}"><div><div class="n">${esc(x.rot)}${x.muni?' · '+esc(x.muni):''}</div><div class="d">${d.getDate()} ${MES3[d.getMonth()]} · ${x.l.toFixed(2).replace('.',',')} l a ${fx(x.p)} €/l · ref. ${fx(x.ref)}</div></div><div class="s">${eurS(s)}</div><button class="x" type="button" aria-label="Borrar repostaje"><svg class="i"><use href="#i-x"/></svg></button></div>`;}).join('');
+  r.querySelectorAll('.x').forEach(btn=>btn.onclick=()=>{const id=btn.closest('.rep').dataset.id;REPS=REPS.filter(x=>x.id!==id);LS.set('cf_rep',REPS);pintaAhorro();if(REPS.length){$('btnList').click();}});
+}
+function exportar(){
+  const blob=new Blob([JSON.stringify({app:'cheapfuel',v:1,exportado:new Date().toISOString(),repostajes:REPS},null,1)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='cheapfuel-repostajes.json';document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},500);
+}
+$('fileImport').onchange=async ev=>{
+  const f=ev.target.files[0];if(!f)return;
+  try{const j=JSON.parse(await f.text());const ls=Array.isArray(j)?j:(j.repostajes||[]);const ids=new Set(REPS.map(r=>r.id));let n=0;
+    ls.forEach(r=>{if(r&&r.id&&!ids.has(r.id)&&typeof r.p==='number'&&typeof r.l==='number'&&typeof r.ref==='number'){REPS.push(r);n++;}});
+    LS.set('cf_rep',REPS);pintaAhorro();toast(n?('Importados '+n+' repostajes'):'Nada nuevo que importar');
+  }catch(e){toast('Ese archivo no es una exportación de CheapFuel');}
+  ev.target.value='';
+};
+
+/* ===== Compartir imagen ===== */
+const UT_D=document.querySelector('#ut-mark path').getAttribute('d');
+async function compartir(){
+  const a=resumen();const n=new Date();
+  try{await document.fonts.load('900 100px Archivo');await document.fonts.load('700 40px "Public Sans"');}catch(e){}
+  const W=1080,H=1920,c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');
+  const PAPEL='#F4F4F2',TINTA='#111111',GRIS='#595959',M=96;
+  x.fillStyle=PAPEL;x.fillRect(0,0,W,H);x.fillStyle=TINTA;x.textBaseline='alphabetic';
+  const disp=(w,s)=>{x.font=`${w} ${s}px Archivo`;try{x.fontStretch='semi-expanded';}catch(e){}};
+  const body=(w,s)=>{x.font=`${w} ${s}px "Public Sans"`;try{x.fontStretch='normal';}catch(e){}};
+  let y=330;
+  body(800,34);x.fillStyle=GRIS;x.letterSpacing='5px';x.fillText(('ESTE MES HE '+(a.mes>=0?'AHORRADO':'PAGADO DE MÁS')).toUpperCase(),M,y);x.letterSpacing='0px';
+  y+=250;disp(900,230);x.fillStyle=TINTA;x.fillText(eur(Math.abs(a.mes)),M,y);
+  y+=110;body(700,46);x.fillStyle=TINTA;
+  const lineas=[a.mes>=0?'en combustible, eligiendo dónde repostar.':'en combustible frente a mi zona.','Comparado con la mediana de precios','de las gasolineras de mi zona.'];
+  lineas.forEach(t=>{x.fillText(t,M,y);y+=64;});
+  y+=40;body(700,38);x.fillStyle=GRIS;x.fillText(`${a.nMes} ${a.nMes===1?'repostaje':'repostajes'} · ${lit(a.lMes)} · ${MESES[n.getMonth()]} ${n.getFullYear()}`,M,y);
+  // separador
+  y+=90;x.fillStyle=TINTA;x.fillRect(M,y,W-2*M,6);
+  y+=120;disp(800,58);x.fillStyle=TINTA;x.fillText('¿Y tú? Mira cuánto ahorras:',M,y);
+  y+=80;body(800,46);x.fillText(SITE,M,y);
+  y+=40;body(600,36);x.fillStyle=GRIS;x.fillText('Precios oficiales · gratis · sin anuncios · sin rastro',M,y+60);
+  // firma unoparatodos (por encima de la zona inferior que tapan las redes)
+  const fy=H-520,S=118;x.save();x.translate(M,fy);x.fillStyle=TINTA;rrect(x,0,0,S,S,22);x.fill();
+  x.translate(0,0);x.scale(S/64,S/64);x.translate(7.408,51.468);x.scale(0.03213,-0.03213);x.fillStyle=PAPEL;x.fill(new Path2D(UT_D));x.restore();
+  disp(900,74);x.fillStyle=TINTA;x.fillText('uno',M+S+30,fy+88);const w1=x.measureText('uno').width;x.fillStyle=GRIS;x.fillText('paratodos',M+S+30+w1,fy+88);
+  body(600,32);x.fillStyle=GRIS;x.fillText('© '+n.getFullYear()+' unoparatodos',M,fy+S+70);
+  const blob=await new Promise(r=>c.toBlob(r,'image/png'));
+  const file=new File([blob],'cheapfuel-ahorro.png',{type:'image/png'});
+  const texto=`Este mes he ${a.mes>=0?'ahorrado':'pagado de más'} ${eur(Math.abs(a.mes))} en combustible frente a la mediana de mi zona. Mira cuánto ahorras tú: https://${SITE}`;
+  if(navigator.canShare&&navigator.canShare({files:[file]})){try{await navigator.share({files:[file],text:texto});return;}catch(e){if(e&&e.name==='AbortError')return;}}
+  const u=URL.createObjectURL(blob);const l=document.createElement('a');l.href=u;l.download='cheapfuel-ahorro.png';document.body.appendChild(l);l.click();setTimeout(()=>{URL.revokeObjectURL(u);l.remove();},500);
+  try{await navigator.clipboard.writeText(texto);toast('Imagen descargada y texto copiado');}catch(e){toast('Imagen descargada');}
+}
+function rrect(x,X,Y,w,h,r){x.beginPath();x.moveTo(X+r,Y);x.arcTo(X+w,Y,X+w,Y+h,r);x.arcTo(X+w,Y+h,X,Y+h,r);x.arcTo(X,Y+h,X,Y,r);x.arcTo(X,Y,X+w,Y,r);x.closePath();}
+
+/* ===== Refrescar y arranque ===== */
+async function refresca(cambioProd){
+  if(cambioProd)SPAIN.data=null;
+  if(POSU)cercaDeMi(true);
+  if(RUTA)pintaRuta();
+  if($('selProv').value)busca();
+  if(!POSU&&!RUTA&&!$('selProv').value){try{await getSpain(!cambioProd);toast('Precios actualizados');}catch(e){}}
+}
+$('btnRefresh').onclick=()=>{SPAIN.ts=0;refresca(false);};
+$('btnGPS').onclick=()=>cercaDeMi();
+$('selRad').onchange=()=>{if(POSU)cercaDeMi(true);};
+$('btnRuta').onclick=guardaRuta;
+$('provO').onchange=function(){llenaMunis(this.value,$('muniO'),false);};
+$('provD').onchange=function(){llenaMunis(this.value,$('muniD'),false);};
+$('selProv').onchange=async function(){await llenaMunis(this.value,$('selMuni'),true);busca();};
+$('selMuni').onchange=busca;
+pintaAhorro();
+cargaProductos().then(()=>{llenaProv($('provO'));llenaProv($('provD'));llenaProv($('selProv'));if(RUTA)pintaRuta();else getSpain().catch(()=>{});});
+if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));}
+</script>
+</body>
+</html>
